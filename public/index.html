@@ -1,10 +1,30 @@
 <!doctype html>
 <html>
 <head>
-    <title></title>
+    <link rel="stylesheet" href="style.css">
+    <title>I'mAGE</title>
 </head>
 <body>
+    <header>
+        <h1>I'm A G E</h1>
+    </header>
+    <main id="main">
+        <ul v-if="images.length > 0">
+                <li v-for="image in images" >
+                    <div @mouseover="showtext" class="image-box">
+                        <div class="image">
+                            <img v-bind:src="image.image">
+
+                        </div>
+                        <h3 class="title">{{image.title}}</h3>
+
+                    </div>
+                </li>
+
+        </ul>
+    </main>
     <script src="/js/vue.js"></script>
     <script src="/js/axios.min.js"></script>
+    <script src="/js/script.js"></script>
 </body>
 </html>
