@@ -1,28 +1,79 @@
 <!doctype html>
 <html>
 <head>
+    <link href="https://fonts.googleapis.com/css?family=Dosis:300,500" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <title>I'mAGE</title>
+    <title>PICycle board</title>
 </head>
 <body>
     <header>
-        <h1>I'm A G E</h1>
+        <img id="logo" src="http://bikethelife.com/wp-content/uploads/smallicons/media.png" alt="media_logo">
+        <h1>PICycle <em>board</em></h1>
+
     </header>
     <main id="main">
-        <ul v-if="images.length > 0">
-                <li v-for="image in images" >
-                    <div @mouseover="showtext" class="image-box">
-                        <div class="image">
-                            <img v-bind:src="image.image">
 
-                        </div>
+        <button v-on:click.stop="show" id="request-form" >Upload</button>
+        <div id="request-form-wrapper">
+            <form>
+                <input v-model="formStuff.title" type="text" name="title" placeholder="Title" value="">
+                <input v-model="formStuff.description" type="text" name="description" placeholder="Description" value="">
+                <input v-model="formStuff.username" type="text" name="username"  placeholder="Username" value="">
+                <input v-on:change="handleChange" type="file" name="" value="">
+                <button v-on:click="handleSubmit">Submit</button>
+            </form>
+        </div>
+
+        <div id="img-board" v-if="images.length > 0">
+            <div class="box" v-for="image in images">
+                <img class="icon" src="user.svg" alt="user_icon">
+                <p class="username">{{image.username}}</p>
+                <img v-on:click="callComponent(image.id)" v-bind:src="image.image">
+
+                    <div class="description"><p>{{image.description}}</p></div>
+                    <div class="title-wrapper">
                         <h3 class="title">{{image.title}}</h3>
-
                     </div>
-                </li>
+            </div>
+        </div>
 
-        </ul>
+        <single-image
+            v-if="selectedImage"
+            v-bind:id="selectedImage"
+            v-on:done="close">
+        <single-image>
+
     </main>
+    <!-- v-on:done="close"> -->
+    <script id="single-image" type="x-template">
+            <div id="single-image" v-on:click="close">
+                <h1>This is a component!</h1>
+                <p>{{username}}</p>
+                <img v-bind:src="image">
+                <div>
+                    <p>{{description}}</p>
+                    <h3>{{title}}</h3>
+                </div>
+
+                <div id="comment-form-wrapper">  //username and comment
+                        <form>
+                            <input v-model="formComment.comment" type="text" name="comment" placeholder="Comment" value="">
+                            <input v-model="formStuff.username" type="text" name="username"  placeholder="Username" value="">
+
+                            <input v-on:change="handleChange" type="file" name="" value="">
+                            <button v-on:click="handleSubmit">Submit</button>
+                        </form>
+                    </div>
+                <div id="comments-wrapper" v-if="comments.length > 0">
+                <div class="comment" v-for="comment in comments">
+
+                </div>
+            </div>
+
+
+    </script>
+
+
     <script src="/js/vue.js"></script>
     <script src="/js/axios.min.js"></script>
     <script src="/js/script.js"></script>
