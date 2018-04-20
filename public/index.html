@@ -35,11 +35,11 @@
                 </div>
                 <a v-bind:href="'#'+image.id">
                     <img v-on:click="callComponent(image.id)" v-bind:src="image.image">
+                    <div class="img-title-wrapper">
+                        <h3 class="title">{{image.title}}</h3>
+                    </div>
                 </a>
                 <div class="img-description"><p>{{image.description}}</p></div>
-                <div class="img-title-wrapper">
-                    <h3 class="title">{{image.title}}</h3>
-                </div>
             </div>
         </div>
 

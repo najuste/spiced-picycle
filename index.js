@@ -71,7 +71,7 @@ var limit = 6;
 app.get("/images", function(req, res) {
     getImages(0, limit)
         .then(results => {
-            console.log("Getting images:", results);
+            //console.log("Getting images"); // here could be checked if resource is accessable
             res.json({ images: results });
         })
         .catch(err => {

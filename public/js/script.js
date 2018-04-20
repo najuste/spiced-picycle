@@ -61,13 +61,11 @@
             }
         },
         mounted: function() {
-            console.log("Mounted function inside component");
             this.getSingleImageData();
         }
     });
 
     //or there could be a component for comments(!)
-
     new Vue({
         el: "#main",
         data: {
