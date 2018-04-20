@@ -25,10 +25,9 @@ h1 {
 }
 
 main {
-    margin: 0 20px 20px 20px;
+    padding: 0 20px 20px 20px;
     position: relative;
-    width: 100%;
-    height: 1000px;
+    /* height: 150vh; */
 }
 
 /* FORM controls */
@@ -36,13 +35,21 @@ button#request-form {
     position: absolute;
     right: 40px;
     top: -80px;
-
     font-family: "Dosis", sans-serif;
     height: 40px;
     width: 80px;
     border-radius: 20px;
     background-color: lightblue;
     font-size: 1em;
+}
+
+button#request-form:hover {
+    cursor: pointer;
+    box-shadow: 0 0 5px grey;
+}
+
+button#request-form:focus {
+    outline: 0;
 }
 #request-form-wrapper {
     width: inherit;
@@ -55,56 +62,91 @@ form {
     border-radius: 5px;
 }
 input {
-    font-size: 12px;
+    margin: 5px;
+    font-size: 15px;
     height: 20px;
     font-family: "Dosis", sans-serif;
 }
 
+input:hover {
+    cursor: pointer;
+    box-shadow: 0 0 2px grey;
+}
+
+input#file {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+input#file + label {
+    padding: 5px 10px;
+    font-weight: 700;
+    background-color: white;
+    color: grey;
+    height: 40px;
+    width: 80px;
+    border-radius: 20px;
+    /* font-size: 1em; */
+    /* display: inline-block; */
+}
+
+input#file:focus + label,
+input#file + label:hover {
+    cursor: pointer;
+    color: #0049ab;
+    box-shadow: 0 0 2px grey;
+}
+
 form button {
-    height: 20px;
-    font-size: 12px;
+    float: right;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 1em;
     font-family: "Dosis", sans-serif;
+}
+
+form button:hover {
+    cursor: pointer;
+    color: #0049ab;
+    box-shadow: 0 0 2px grey;
 }
 
 /* image board  */
 
 #img-board {
     padding: 0;
-    height: 1000px;
     list-style: none;
     display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    align-content: center;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    overflow: scroll;
+    height: inherit;
 }
 
 .box {
     position: relative;
-    width: 230px;
+    width: 300px;
     /* height: 230px; */
     padding-top: 5px;
     margin: 20px 20px 40px 20px;
     box-shadow: -3px 0 0 #fff;
 }
 
-.title-wrapper {
+.img-header {
     position: absolute;
-    bottom: 10px;
-    left: 0;
-    right: 0;
-    margin: 0;
-    opacity: 0;
-    display: block;
-    background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 2px;
+    height: inherit;
+    width: 100%;
+    top: -15px;
 }
 
-p {
-    color: grey;
-}
-.icon {
-    position: absolute;
-    top: -12px;
+img.icon {
+    /* position: absolute; */
     height: 14px;
     width: 14px;
     border-radius: 50%;
@@ -112,32 +154,49 @@ p {
 
 .username {
     position: absolute;
-    top: -17px;
+    top: 0;
     left: 15px;
     margin: 0;
 }
 
-.description {
+.img-description {
     position: absolute;
-    bottom: -40px;
+    font-style: italic;
+    height: 2em;
+    overflow: hidden;
+}
+
+.img-title-wrapper {
+    position: absolute;
+    height: 100%;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    margin: 0;
+    opacity: 0;
+    display: block;
+    border-radius: 2px;
+}
+
+p {
+    margin: 5px 0;
+    color: grey;
 }
 
 .title {
     position: absolute;
     padding: 5px 10px;
-    width: 210px;
+    width: 280px;
     bottom: 10px;
     color: rgba(255, 255, 255, 0.8);
     /* background-color: rgba(42, 33, 88, 0.1); */
 }
 
-.title-wrapper:hover {
+.img-title-wrapper:hover {
     opacity: 1;
 }
 
-
 img {
-    /* height: 220px; */
     width: 100%;
     border-radius: 2px;
 }
@@ -149,21 +208,137 @@ img:hover {
 h3 {
     margin: 0;
 }
-
-#single-image {
-    background-color: skyblue;
-    position: absolute;
-    width: 100%;
-    top:10px;
-    left:10px;
-    box-shadow: 0 0 10px grey;
-    text-align: center;
-
+h2 {
+    margin: 9px 20px;
+}
+.username {
+    color: black;
 }
 
-#single-image>img{
-    height: 500px;
-    width: auto;
-    margin: auto;
+#single-image {
+    background: rgba(0, 0, 0, 0.7);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: auto;
+}
+#single-image-wrapper {
+    background-color: black;
+    opacity: 1;
+    position: absolute;
+    width: 84%;
+    top: 8%;
+    left: 8%;
+    box-shadow: 0 0 10px grey;
+    text-align: center;
+}
 
+#single-image-wrapper > img {
+    margin: auto;
+    max-width: 555px;
+    height: auto;
+}
+#single-image-wrapper > img:hover {
+    filter: none;
+}
+#single-image-wrapper input[name="comment"] {
+    width: 100%;
+    height: 2em;
+}
+
+#single-image-wrapper > .img-header {
+    top: 3em;
+    width: 100%;
+    text-align: left;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+#single-image-wrapper button {
+    float: none;
+}
+
+#single-image-wrapper > .img-description {
+    position: relative;
+    left: 20px;
+}
+
+#comments-wrapper {
+    background-color: black;
+}
+
+.comment {
+    border-radius: 5px;
+    background-color: white;
+    margin: 5px;
+    padding: 0 5px;
+}
+
+.comment .comment-user {
+    display: inline;
+    font-style: italic;
+    font-weight: 700;
+}
+
+/* @media screen and (max-width: 620px) and (min-width: 400px) {
+    #main {
+        background-color: grey;
+    }
+    form {
+        border-radius: 5px;
+        text-align: right;
+    }
+} */
+
+@media screen and (max-width: 620px) {
+    #main {
+        margin: 0;
+        padding: 0;
+    }
+
+    button#request-form {
+        position: absolute;
+        right: 20px;
+        top: -33px;
+        height: 30px;
+        width: 60px;
+    }
+
+    form {
+        border-radius: 0;
+        text-align: left;
+    }
+
+    input {
+        display: block;
+        font-size: 17px;
+    }
+    input#file + label {
+        padding: 0px 10px;
+        border: 5px solid lightblue;
+        border-radius: 0;
+
+        height: 40px;
+    }
+    .box {
+        width: 100%;
+        margin: 20px 0 40px 0;
+    }
+
+    #single-image-wrapper > img {
+        height: auto;
+        width: 100%;
+    }
+    #single-image-wrapper button {
+        float: none;
+    }
+    .box > .img-header,
+    .box > .img-description {
+        left: 20px;
+    }
+    .img-title-wrapper {
+        opacity: 1;
+    }
 }

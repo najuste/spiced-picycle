@@ -1,17 +1,19 @@
 <!doctype html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width">
     <link href="https://fonts.googleapis.com/css?family=Dosis:300,500" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <title>PICycle board</title>
 </head>
 <body>
     <header>
-        <img id="logo" src="http://bikethelife.com/wp-content/uploads/smallicons/media.png" alt="media_logo">
+        <a href="/"><img id="logo" src="http://bikethelife.com/wp-content/uploads/smallicons/media.png" alt="media_logo"></a>
         <h1>PICycle <em>board</em></h1>
 
     </header>
     <main id="main">
+    <!-- <button v-bind:class="{ active: showUpload }" v-on:click="showUpload = !showUpload" id="request-form" >Upload</button> -->
 
         <button v-on:click.stop="show" id="request-form" >Upload</button>
         <div id="request-form-wrapper">
@@ -19,21 +21,25 @@
                 <input v-model="formStuff.title" type="text" name="title" placeholder="Title" value="">
                 <input v-model="formStuff.description" type="text" name="description" placeholder="Description" value="">
                 <input v-model="formStuff.username" type="text" name="username"  placeholder="Username" value="">
-                <input v-on:change="handleChange" type="file" name="" value="">
-                <button v-on:click="handleSubmit">Submit</button>
+                <input v-on:change="handleChange" type="file" name="file" id="file" value="">
+                <label for="file">Choose a file</label>
+                <button v-on:click.stop="handleSubmit">Submit</button>
             </form>
         </div>
 
         <div id="img-board" v-if="images.length > 0">
             <div class="box" v-for="image in images">
-                <img class="icon" src="user.svg" alt="user_icon">
-                <p class="username">{{image.username}}</p>
-                <img v-on:click="callComponent(image.id)" v-bind:src="image.image">
-
-                    <div class="description"><p>{{image.description}}</p></div>
-                    <div class="title-wrapper">
-                        <h3 class="title">{{image.title}}</h3>
-                    </div>
+                <div class="img-header">
+                    <img class="icon" src="user.svg" alt="user_icon">
+                    <p class="username">{{image.username}}</p>
+                </div>
+                <a v-bind:href="'#'+image.id">
+                    <img v-on:click="callComponent(image.id)" v-bind:src="image.image">
+                </a>
+                <div class="img-description"><p>{{image.description}}</p></div>
+                <div class="img-title-wrapper">
+                    <h3 class="title">{{image.title}}</h3>
+                </div>
             </div>
         </div>
 
@@ -44,32 +50,40 @@
         <single-image>
 
     </main>
-    <!-- v-on:done="close"> -->
     <script id="single-image" type="x-template">
-            <div id="single-image" v-on:click="close">
-                <h1>This is a component!</h1>
-                <p>{{username}}</p>
+            <div v-on:click.self="close" id="single-image">
+            <div id="single-image-wrapper">
+                <h2>{{title}}</h2>
+                <div class="img-header">
+                    <img class="icon" src="user.svg" alt="user_icon">
+                    <p class="username">{{username}}</p>
+                </div>
+
                 <img v-bind:src="image">
-                <div>
-                    <p>{{description}}</p>
-                    <h3>{{title}}</h3>
+                <div class="img-description">
+                    <p >{{description}}</p>
+
                 </div>
 
-                <div id="comment-form-wrapper">  //username and comment
-                        <form>
-                            <input v-model="formComment.comment" type="text" name="comment" placeholder="Comment" value="">
-                            <input v-model="formStuff.username" type="text" name="username"  placeholder="Username" value="">
+                <div id="comments-form-wrapper">
+                    <form>
+                    <p> Comment Form </p>
+                        <input v-model="formComment.username" type="text" name="username"  placeholder="Username" value="">
+                        <input v-model="formComment.comment" type="text" name="comment" placeholder="Comment" value="">
+                        <button v-on:click="commentFormSubmit">Submit</button>
+                    </form>
+                </div>
+                <div id="comments-wrapper" v-if="comments && comments.length>0">
+                    <div class="comment" v-for="comment in comments">
 
-                            <input v-on:change="handleChange" type="file" name="" value="">
-                            <button v-on:click="handleSubmit">Submit</button>
-                        </form>
+                        <img class="icon" src="user.svg" alt="user_icon">
+                        <p class="comment-user">{{comment.username}}</p>
+                        <p>{{comment.comment}}</p>
                     </div>
-                <div id="comments-wrapper" v-if="comments.length > 0">
-                <div class="comment" v-for="comment in comments">
-
                 </div>
-            </div>
 
+            </div>
+    </div>
 
     </script>
 

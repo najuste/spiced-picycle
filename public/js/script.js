@@ -1,6 +1,6 @@
 (function() {
     Vue.component("single-image", {
-        template: '#single-image',
+        template: "#single-image",
         props: ["id"],
         data: function() {
             return {
@@ -8,26 +8,61 @@
                 username: "",
                 title: "",
                 description: "",
-                // comments: []
+                comments: [],
+                formComment: {
+                    username: "",
+                    comment: ""
+                }
             };
+        },
+        watch: {
+            id: function() {
+                this.getSingleImageData();
+            }
         },
         methods: {
             close: function() {
-                console.log('close thing emiting');
-                //of function directly can be selectedImage=null
                 this.$emit("done");
+            },
+            commentFormSubmit: function(e) {
+                e.preventDefault();
+                var app = this;
+                var data = {
+                    username: app.formComment.username,
+                    comment: app.formComment.comment,
+                    image_id: app.id
+                };
+                axios
+                    .post("/comments/" + this.id, data)
+                    .then(results => {
+                        app.comments.unshift(results.data.comments[0]);
+                    })
+                    .catch(err => console.log(err));
+            },
+            getSingleImageData: function() {
+                var app = this;
+                var id = app.id;
+                axios
+                    .get("/image/" + id)
+                    .then(function(results) {
+                        app.image = results.data.imageSingle.image;
+                        app.username = results.data.imageSingle.username;
+                        app.title = results.data.imageSingle.title;
+                        app.description = results.data.imageSingle.description;
+
+                        axios
+                            .get("/comments/" + id)
+                            .then(function(results) {
+                                app.comments = results.data.comments;
+                            })
+                            .catch(err => console.log(err));
+                    })
+                    .catch(err => console.log(err));
             }
         },
         mounted: function() {
-            console.log('Mounted function inside component');
-            var app = this;
-            axios.get("/image/" + this.id).then(function (results) {
-                console.log('Got to the route with axios & here are results:', results.data.imageSingle);
-                app.image = results.data.imageSingle.image;
-                app.user = results.data.imageSingle.username;
-                app.title = results.data.imageSingle.title;
-                app.description = results.data.imageSingle.description;
-            });
+            console.log("Mounted function inside component");
+            this.getSingleImageData();
         }
     });
 
@@ -37,66 +72,103 @@
         el: "#main",
         data: {
             images: [],
-            selectedImage: null, //set to id the user clicks and then in single image if
-
+            selectedImage: location.hash.slice(1) || null,
             formStuff: {
                 username: "",
                 description: "",
                 title: "",
-                file: void 0 //en empty value
-            }
+                file: void 0
+            },
+            showForm: false
         },
+
         methods: {
-            close: function(){
+            close: function() {
                 this.selectedImage = null;
+                document.body.style.overflow = "initial";
+                this.removeHash();
             },
             show: function(e) {
-                console.log("click", e.target.nextElementSibling);
-                e.target.nextElementSibling.style.display = "block";
+                if (!this.showForm) {
+                    this.showForm = true;
+                    e.target.nextElementSibling.style.display = "block";
+                } else {
+                    this.showForm = false;
+                    e.target.nextElementSibling.style.display = "none";
+                }
             },
-            //------calling the componenet so show up
             callComponent(image_id) {
-                console.log("The image with id was called", image_id);
                 this.selectedImage = image_id;
+                document.body.style.overflow = "hidden";
             },
-
             handleChange: function(e) {
                 this.formStuff.file = e.target.files[0];
             },
-            handleSubmit: function(e) {
-                console.log("Inside handle submit");
-                e.preventDefault();
+            handleSubmit: function() {
                 const formData = new FormData();
                 formData.append("file", this.formStuff.file);
                 formData.append("title", this.formStuff.title);
                 formData.append("description", this.formStuff.description);
                 formData.append("username", this.formStuff.username);
 
-                axios.post("/upload", formData).then(results => {
-                    console.log("Successfull upload", results);
-                    //change the results.data.imageFilename
-                    this.images.unshift({
-                        id: results.data.id,
-                        image: results.data.imageFilename,
-                        username: this.formStuff.username,
-                        title: this.formStuff.title,
-                        descrition: this.formStuff.description
-                    });
-                    console.log(this.images);
-                    //
-                    // img data in results.data..image(?) we need to send the data
-                    // unshift the new img to this.images /adding to the begining
-                });
+                axios
+                    .post("/upload", formData)
+                    .then(results => {
+                        this.images.unshift({
+                            id: results.data.id,
+                            image: results.data.imageFilename,
+                            username: this.formStuff.username,
+                            title: this.formStuff.title,
+                            description: this.formStuff.description
+                        });
+                    })
+                    .catch(err => console.log(err));
+            },
+            handleScroll() {
+                if (
+                    document.body.clientHeight - window.scrollY <=
+                    window.innerHeight
+                ) {
+                    this.getNextImages();
+                } else {
+                    setTimeout(this.handleScroll, 1000);
+                }
+            },
+            getNextImages: function() {
+                var app = this;
+                let nextbatch = app.images.length;
+                axios
+                    .get("/images/" + nextbatch)
+                    .then(function(results) {
+                        results.data.images.forEach(item => {
+                            app.images.push(item);
+                        });
+                    })
+                    .catch(err => console.log(err));
+            },
+            removeHash: function() {
+                history.pushState(
+                    "",
+                    document.title,
+                    window.location.pathname + window.location.search
+                );
             }
         },
+
         mounted: function() {
-            //lifecycle method
             var app = this;
-            console.log("Mounted");
-            axios.get("/images").then(function(results) {
-                console.log(results.data);
-                app.images = results.data.images;
+            axios
+                .get("/images")
+                .then(function(results) {
+                    app.images = results.data.images;
+                })
+                .catch(err => console.log(err));
+            addEventListener("hashchange", function() {
+                app.selectedImage = location.hash.slice(1);
             });
+        },
+        updated: function() {
+            addEventListener("scroll", this.handleScroll());
         }
     });
 })();

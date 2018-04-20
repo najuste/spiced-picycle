@@ -33,6 +33,7 @@ var uploader = multer({
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 app.use(express.static("public"));
 
@@ -40,10 +41,9 @@ app.use(express.static("uploads/"));
 
 app.post("/upload", uploader.single("file"), s3.upload, function(req, res) {
     if (req.file) {
-        console.log("Successfull upload", req.file.filename, req.body);
         db
             .query(
-                `INSERT INTO images (image, username, title, description) VALUES ($1, $2, $3, $4) RETURNING id`,
+                `INSERT INTO images (image, username, title, description) VALUES ($1, $2, $3, $4) RETURNING *`,
                 [
                     req.file.filename,
                     req.body.username,
@@ -52,14 +52,12 @@ app.post("/upload", uploader.single("file"), s3.upload, function(req, res) {
                 ]
             )
             .then(results => {
-                console.log(
-                    "Check image filename in results:",
-                    results.rows[0]
-                );
-                res.json({
-                    id: results.rows[0].id,
-                    imageFilename: req.file.filename
-                });
+                results = results.rows[0];
+                results.image = config.s3Url + results.image;
+                res.json({ images: results });
+            })
+            .catch(err => {
+                console.log(err);
             });
     } else {
         console.log("Fail... upload");
@@ -69,83 +67,97 @@ app.post("/upload", uploader.single("file"), s3.upload, function(req, res) {
     }
 });
 
+var limit = 6;
 app.get("/images", function(req, res) {
-    db.query(`SELECT*FROM images ORDER BY id DESC`).then(results => {
-        let images = results.rows;
-
-        images.forEach(function(img) {
-            img.image = config.s3Url + img.image;
-            return img;
+    getImages(0, limit)
+        .then(results => {
+            console.log("Getting images:", results);
+            res.json({ images: results });
+        })
+        .catch(err => {
+            console.log(err);
         });
-        //res.json(images);
-        res.json({ images: images });
-    });
+});
+
+app.get("/images/:nextbatch", function(req, res) {
+    getImages(req.params.nextbatch, limit)
+        .then(results => {
+            res.json({ images: results });
+        })
+        .catch(err => {
+            console.log(err);
+        });
 });
 
 app.get("/image/:id", function(req, res) {
-    db.query(`SELECT * FROM images WHERE id=$1`, [req.params.id]).then(results => {
-        if(results.rows.length){
-            console.log("Getting a single image", results.rows[0].image);
-            let imageSingle= results.rows[0];
-            imageSingle.image= config.s3Url + results.rows[0].image;
-            res.json({imageSingle});
-        }
-        else{
-            console.log('Some wrong query was done');
-            req.sendStatus(500);
-        }
-
-    });
+    db
+        .query(`SELECT * FROM images WHERE id=$1`, [req.params.id])
+        .then(results => {
+            if (results.rows.length) {
+                //console.log("Getting a single image", results.rows[0].image);
+                let imageSingle = results.rows[0];
+                imageSingle.image = config.s3Url + results.rows[0].image;
+                res.json({ imageSingle });
+            } else {
+                console.log("Some wrong query was done");
+                req.sendStatus(500);
+            }
+        })
+        .catch(err => console.log(err));
 });
 
-// app.get("/singleimagecomments", function(req, res) {
-//     //how to pass an id here?
-//
-//     let getcomments = function(id) {
-//         return db.query(
-//             `SELECT*FROM comments WHERE image_id=($1) ORDER BY created_at DESC`,
-//             [id]
-//         );
-//     };
-//     getcomments.then(results => {
-//         console.log("Getting comments", results.rows);
-//         res.json({ images: results.rows });
-//     });
-// });
+app.get("/comments/:image_id", function(req, res) {
+    return db
+        .query(
+            `SELECT*FROM comments WHERE image_id=($1) ORDER BY created_at DESC`,
+            [req.params.image_id]
+        )
+        .then(results => {
+            res.json({ comments: results.rows });
+        });
+});
 
-// app.post("/comment", uploader.single("file"), s3.upload, function(req, res) {
-//     if (req.body) {
-//         console.log("Successfull comment upload", req.body);
-//         //how do we get the image_id
-//         db
-//             .query(
-//                 `INSERT INTO comments (username, comment, image_id) VALUES ($1, $2, $3)`,
-//                 [req.body.username, req.body.comment, image_id]
-//             )
-//             .then(results => {
-//                 console.log("Uploaded comment results:", results.rows);
-//                 res.json({
-//                     id: results.rows[0].id,
-//                     imageFilename: req.file.filename
-//                 });
-//             });
-//     } else {
-//         console.log("Fail... upload comment");
-//         res.json({
-//             success: false
-//         });
-//     }
-// });
+app.post("/comments/:image_id", function(req, res) {
+    if (req.body) {
+        db
+            .query(
+                `INSERT INTO comments (username, comment, image_id) VALUES ($1, $2, $3) RETURNING *`,
+                [req.body.username, req.body.comment, req.params.image_id]
+            )
+            .then(results => {
+                res.json({
+                    comments: results.rows
+                });
+            });
+    } else {
+        console.log("Fail... upload comment");
+        res.json({
+            success: false
+        });
+    }
+});
 
-//get route and post route for images
-//route get data about images
-//route get  data about comments or put those both queries in one route
+function getImages(start, limit) {
+    return db
+        .query(`SELECT*FROM images ORDER BY id DESC LIMIT $1 OFFSET $2`, [
+            limit,
+            start
+        ])
+        .then(results => {
+            // console.log(
+            //     "Got getImages results with start, limit",
+            //     start,
+            //     limit
+            // );
 
-//so on pop - all data of comments and images
-// this view of all data should be a component
-// axios.post('/coment', {
-//     username: ...
-//
-// })
+            let images = results.rows;
+            images.forEach(function(img) {
+                img.image = config.s3Url + img.image;
+                return img;
+            });
+            return images;
+        })
+        .catch(err => console.log(err));
+}
 
 app.listen(8080, () => console.log("Nieko tokio"));
