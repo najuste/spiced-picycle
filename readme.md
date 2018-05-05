@@ -21,4 +21,5 @@ Picture board size is is limited and therefore auto-scroll is implemented to loa
 ## To run
 
 _(should have node installed)_
+
 To install dependencies: `npm install`. To run page on localhost:8080 launch server from command line with `node index.js`.
