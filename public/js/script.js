@@ -101,24 +101,22 @@
             },
             handleChange: function(e) {
                 this.formStuff.file = e.target.files[0];
+                console.log("From changes:", this.formStuff);
             },
             handleSubmit: function() {
                 const formData = new FormData();
-                formData.append("file", this.formStuff.file);
-                formData.append("title", this.formStuff.title);
-                formData.append("description", this.formStuff.description);
                 formData.append("username", this.formStuff.username);
-
+                formData.append("description", this.formStuff.description);
+                formData.append("title", this.formStuff.title);
+                formData.append("file", this.formStuff.file);
                 axios
                     .post("/upload", formData)
                     .then(results => {
-                        this.images.unshift({
-                            id: results.data.id,
-                            image: results.data.imageFilename,
-                            username: this.formStuff.username,
-                            title: this.formStuff.title,
-                            description: this.formStuff.description
-                        });
+                        for (var i in this.formStuff) {
+                            this.formStuff[i] = "";
+                        }
+                        console.log(results.data);
+                        this.images.unshift(results.data.image);
                     })
                     .catch(err => console.log(err));
             },

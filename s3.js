@@ -3,7 +3,7 @@ const fs = require("fs");
 
 let secrets;
 if (process.env.NODE_ENV == "production") {
-    secrets = process.env; // in prod the secrets are environment variables
+    secrets = process.env;
 } else {
     secrets = require("./secrets");
 }
@@ -14,7 +14,6 @@ const client = knox.createClient({
 });
 
 function upload(req, res, next) {
-    console.log("Inside s3 function upload");
     if (!req.file) {
         res.sendStatus(500);
     }

@@ -23,7 +23,7 @@
                 <input v-model="formStuff.username" type="text" name="username"  placeholder="Username" value="">
                 <input v-on:change="handleChange" type="file" name="file" id="file" value="">
                 <label for="file">Choose a file</label>
-                <button v-on:click.stop="handleSubmit">Submit</button>
+                <button v-on:click.prevent="handleSubmit">Submit</button>
             </form>
         </div>
 

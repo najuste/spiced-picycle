@@ -54,7 +54,7 @@ app.post("/upload", uploader.single("file"), s3.upload, function(req, res) {
             .then(results => {
                 results = results.rows[0];
                 results.image = config.s3Url + results.image;
-                res.json({ images: results });
+                res.json({ image: results });
             })
             .catch(err => {
                 console.log(err);
@@ -94,12 +94,10 @@ app.get("/image/:id", function(req, res) {
         .query(`SELECT * FROM images WHERE id=$1`, [req.params.id])
         .then(results => {
             if (results.rows.length) {
-                //console.log("Getting a single image", results.rows[0].image);
                 let imageSingle = results.rows[0];
                 imageSingle.image = config.s3Url + results.rows[0].image;
                 res.json({ imageSingle });
             } else {
-                console.log("Some wrong query was done");
                 req.sendStatus(500);
             }
         })
@@ -144,12 +142,6 @@ function getImages(start, limit) {
             start
         ])
         .then(results => {
-            // console.log(
-            //     "Got getImages results with start, limit",
-            //     start,
-            //     limit
-            // );
-
             let images = results.rows;
             images.forEach(function(img) {
                 img.image = config.s3Url + img.image;
