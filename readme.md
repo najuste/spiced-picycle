@@ -1,17 +1,17 @@
-#PIC'ycle board
+# PIC'ycle board
 
-An image board for cycling experiences, where one can view the board, by clicking any image view and submit comments, as well as add a new image!
-It is still in the development stage, so up to now no login page available. And submitted pics are all from my cycling trip :)
+An image board for sharing cycling experiences! A single page application to view and upload photos.
 
 ## Technology
 
-Built with Vue.js for the front and Node.js Express.js at the back end.
+Built with `Vue.js` for the front and `Node.js` Express.js at the back end.
+Pictures are uploaded using `multer` package at the middleware and stored at the cloud with `AWS` `S3` service.
+
+For navigation between images and for specific view sharing purposes, a unique path is created for each image with adding a hash and an image id to the host page.
+
+Picture board size is is limited and therefore auto-scroll is implemented to load more images if available.
 
 ## To run
 
-If you get the source code, first you should have `node`- installed.
-Also you would need a Postgres db, to test it with tables described at sql folder.
-
-* `npm install`
-* `node index.js`
-* Listening on `localhost:8080` - open your browser!
+*(should have node installed)*
+To install dependencies: `npm install`. To run page on localhost:8080 launch server from command line with `node index.js`.
